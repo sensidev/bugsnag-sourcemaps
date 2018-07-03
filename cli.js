@@ -86,6 +86,12 @@ const tasks = new Listr([
   },
 ]);
 
+const computeAppVersion = (packageVersion) => {
+  const computedVersion = parseInt(packageVersion.replace(/\D/g, ''), 10);
+  const isAndroidBuild = !process.env.APPCENTER_XCODE_SCHEME;
+  return isAndroidBuild ? computedVersion * 10 + 2 : computedVersion * 10 + 1
+};
+
 Promise.resolve()
   .then(() => {
     if (!conf.appVersion && !conf.codeBundleId) {
@@ -95,7 +101,7 @@ Promise.resolve()
         readPkgUp(conf.projectRoot || process.cwd())
           .then(arg => {
             const pkg = arg && arg.pkg ? arg.pkg : null;
-            if (pkg) conf.appVersion = pkg.version;
+            if (pkg) conf.appVersion = computeAppVersion(pkg.version);
           })
       );
     }
